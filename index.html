@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PollPulse - Polling App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+   <header class="header">
+  <div class="header-inner">
+    <img src="https://img.freepik.com/premium-vector/exit-poll-icon-vector-logo-design-template_1141934-3788.jpg" alt="PollPulse logo" class="logo-image" />
+    <h1 class="logo-text">SNAPPOLL</h1>
+  </div>
+</header>
+<section class="auth-section">
+  <h2>Authentication</h2> 
+  <form id="loginForm">
+    <h3>Login</h3>
+    <label>
+      Username
+      <input type="text" id="loginUsername" required />
+    </label>
+    <label>
+      Password
+      <input type="password" id="loginPassword" required />
+    </label>
+    <button type="submit" class="primary">Login</button>
+  </form>
+  <form id="signupForm" style="margin-top:16px;">
+    <h3>Sign Up</h3>
+    <label>
+      Username
+      <input type="text" id="signupUsername" required />
+    </label>
+    <label>
+      Password
+      <input type="password" id="signupPassword" required />
+    </label>
+    <button type="submit" class="primary">Create account</button>
+  </form>
+  <p id="authStatus" style="margin-top:8px;font-size:16px;color:#58c52a;"></p>
+</section>
+<section class="create-poll">
+  <h2>Create a Poll</h2>
+    <form id="createPollForm">
+      <label>
+        Question
+        <input type="text" id="questionInput" required placeholder="What's your question?" />
+      </label>
+      <div id="optionsContainer">
+        <label>
+          Option 1
+          <input type="text" class="option-input" required />
+        </label>
+        <label>
+          Option 2
+          <input type="text" class="option-input" required />
+        </label>
+      </div>
+      <button type="button" id="addOptionBtn">+ Add Option</button>
+      <button type="submit" class="primary">Create Poll</button>
+    </form>
+</section>
+<section class="poll-list">
+  <h2>Active Polls</h2>
+    <div id="pollsContainer"></div>
+</section>
+  </div>
+<script src="script.js"></script>
+</body>
+</html>
