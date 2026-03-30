@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PollPulse - Polling App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+ 
+    <div id="loadingOverlay" class="hidden-section">
+  <div class="spinner"></div>
+  <p style="margin-top: 15px; font-family: sans-serif; color: #4b0707;">Loading PollPulse...</p>
+</div>
 
+  <div class="app">
+   <header class="header">
+  <div class="header-inner">
+    <img src="https://img.freepik.com/premium-vector/exit-poll-icon-vector-logo-design-template_1141934-3788.jpg" alt="PollPulse logo" class="logo-image" />
+    <h1 class="logo-text">SNAPPOLL</h1>
+  <button id="logoutBtn" class="hidden-section">Logout</button>
+  </div>
+</header>
+<section id="authWrapper" class="auth-section">
+  <div id="loginContainer">
+  <h2>Login</h2> 
+  <form id="loginForm">
+    <label>
+      Username(Email)
+      <input type="text" id="loginUsername" required />
+    </label>
+    <label>
+      Password
+      <input type="password" id="loginPassword" required />
+    </label>
+    <button type="submit" class="primary">Login</button>
+  </form>
+  <p>New here? <a href="#" onclick="toggleAuth('signup')">Create an account</a></p>
+    </div>
+    <div id="signupContainer" class="hidden-section">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+    <label>
+      Username(Email)
+      <input type="text" id="signupUsername" required />
+    </label>
+    <label>
+      Password
+      <input type="password" id="signupPassword" required />
+    </label>
+    <button type="submit" class="primary">Create account</button>
+  </form>
+  <p>Already have an account? <a href="#" onclick="toggleAuth('login')">Login here</a></p>
+    </div>
+  <p id="authStatus"></p>
+</section>
+<div id="mainAppWrapper" class="hidden-section">
+<section class="create-poll">
+  <h2>Create a Poll</h2>
+    <form id="createPollForm">
+      <label>
+        Question
+        <input type="text" id="questionInput" required placeholder="What's your question?" />
+      </label>
+      <div id="optionsContainer">
+        <label>
+          Option 1
+          <input type="text" class="option-input" required />
+        </label>
+        <label>
+          Option 2
+          <input type="text" class="option-input" required />
+        </label>
+       </div>
+      <button type="button" id="addOptionBtn">+ Add Option</button>
+      <button type="submit" class="primary">Create Poll</button>
+    </form>
+</section>
+
+
+<section class="poll-list">
+    <div class="poll" id="userWelcomeHeader">
+    <h3 class="poll1" id="welcomeText"></h3>
+  </div>
+  <h2>Active Polls</h2>
+  <input type="text" id="pollSearch" placeholder="Search polls by question..." class="search" />
+    <div id="pollsContainer"></div>
+</section>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
