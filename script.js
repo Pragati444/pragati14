@@ -1,3 +1,24 @@
+function normalizeEmail(email) {
+  return email ? email.trim().toLowerCase() : "";
+}
+const loadingOverlay = document.getElementById("loadingOverlay");
+const authWrapper = document.getElementById("authWrapper");
+const mainAppWrapper = document.getElementById("mainAppWrapper");
+const loginContainer = document.getElementById("loginContainer");
+const signupContainer = document.getElementById("signupContainer");
+const logoutBtn = document.getElementById("logoutBtn");
+const pollSearch = document.getElementById("pollSearch");
+
+pollSearch.addEventListener("input", (e) => {
+  const searchTerm = e.target.value.toLowerCase();
+  const pollCards = pollsContainer.querySelectorAll(".poll-card");
+  
+  pollCards.forEach(card => {
+    const question = card.querySelector(".poll-question").textContent.toLowerCase();
+    card.style.display = question.includes(searchTerm) ? "block" : "none";
+  });
+});
+
 const STORAGE_KEY = "pollpulse_polls";
 const USERS_KEY = "pollpulse_users";
 const CURRENT_USER_KEY = "pollpulse_current_user";
@@ -61,22 +82,37 @@ const signupPassword = document.getElementById("signupPassword");
 let users =loadUsers();
 signupForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const username = signupUsername.value.trim();
+  const rawUsername = signupUsername.value.trim();
+  const username = normalizeEmail(rawUsername);
   const password = signupPassword.value.trim();
    if (!username || !password) {
     authStatus.textContent = "Please fill all fields.";
     return;
   }
    if (users.some((u) => u.username === username)) {
-    authStatus.textContent = "Username already exists.";
+    authStatus.textContent = "This email (or an alias of it) is already registered.";
     return;
   }
-  users.push({ username, password }); 
+if (users.some((u) => u.deviceId === browserId)) {
+    authStatus.textContent = "An account has already been created from this device.";
+    return;
+  }
+  users.push({ username, password, deviceId: browserId }); 
   saveUsers(users);
-  authStatus.textContent = "Account created. You can now log in.";
+  authStatus.textContent = "Account created successfully!";
   signupForm.reset();
 });
-loginForm.addEventListener("submit", (e) => {
+function toggleAuth(view) {
+  if (view === 'signup') {
+    loginContainer.classList.add("hidden-section");
+    signupContainer.classList.remove("hidden-section");
+  } else {
+    loginContainer.classList.remove("hidden-section");
+    signupContainer.classList.add("hidden-section");
+  }
+}
+
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const username = loginUsername.value.trim();
   const password = loginPassword.value.trim();
@@ -85,11 +121,52 @@ loginForm.addEventListener("submit", (e) => {
   );
   if (!user) {
     authStatus.textContent = "Invalid username or password.";
+    authStatus.style.color = "red";
     return;
   }
   setCurrentUser(user.username);
   authStatus.textContent = "Logged in as " + user.username;
+  authStatus.style.color = "green";
+await updateUIVisibilityWithLoading();
+loginForm.reset();
 });
+
+async function updateUIVisibilityWithLoading() {
+  loadingOverlay.classList.remove("hidden-section");
+  loadingOverlay.classList.remove("hidden-loader");
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const user = getCurrentUser();
+  const welcomeHeader = document.getElementById("userWelcomeHeader");
+  const welcomeText = document.getElementById("welcomeText");
+  if (user) {
+    if (welcomeHeader && welcomeText) {
+      welcomeText.textContent = `Welcome back, ${user}!`;
+      welcomeHeader.style.display = "block";
+    }
+    authWrapper.classList.add("hidden-section");
+    mainAppWrapper.classList.remove("hidden-section");
+    logoutBtn.classList.remove("hidden-section");
+    renderPolls();
+  } else {
+    if (welcomeHeader) welcomeHeader.style.display = "none";
+    authWrapper.classList.remove("hidden-section");
+    mainAppWrapper.classList.add("hidden-section");
+    logoutBtn.classList.add("hidden-section");
+  }
+loadingOverlay.classList.add("hidden-loader");
+  setTimeout(() => {
+    loadingOverlay.classList.add("hidden-section");
+  }, 300); 
+}
+
+logoutBtn.addEventListener("click", async () => {
+  setCurrentUser(null); 
+  await updateUIVisibilityWithLoading();
+});
+
+
+
 createPollForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const question = questionInput.value.trim();
@@ -142,21 +219,25 @@ function isPollExpired(poll) {
 }
 function handleVote(pollId, optionIndex) {
   const poll = polls.find((p) => p.id === pollId);
+  const currentUser = getCurrentUser();
   if (!poll) return;
 
   if (isPollExpired(poll)) {
     alert("This poll has expired.");
     return;
   }
-  if (poll.voters && poll.voters.includes(browserId)) {
-    alert("You have already voted on this poll.");
+  const normalizedUser = currentUser ? normalizeEmail(currentUser) : null;
+  const hasDeviceVoted = poll.voters.includes(browserId);
+  const hasEmailVoted = normalizedUser && poll.voters.includes(normalizedUser);
+  if (hasDeviceVoted || hasEmailVoted) {
+    alert("This device or account has already been used to vote on this poll.");
     return;
-  }
-  if(!poll.vvoters){
-    poll.voters = [];
   }
   poll.options[optionIndex].votes += 1;
   poll.voters.push(browserId);
+  if (normalizedUser) {
+    poll.voters.push(normalizedUser);
+  }
   savePolls(polls);
   renderPolls();
 }
@@ -340,4 +421,11 @@ window.addEventListener("storage", (event) => {
   }
 });
 focusSharedPoll();
+document.addEventListener("DOMContentLoaded", () => {
+  const user = getCurrentUser();
+  if (user) {
+    updateUIVisibilityWithLoading();
+  }
+});
+
 
